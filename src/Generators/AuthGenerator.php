@@ -88,43 +88,40 @@ class AuthGenerator
     {
     	$controllerName = collect($segments)->last();
 
-    	$dir = collect($segments);
-    	$dir->pop();
-    	$directory = implode(DIRECTORY_SEPARATOR,$dir->all());
-    	if (! is_dir($this->controllerPath.$directory)) {
-            $this->file->makeDirectory($this->controllerPath.$directory, 0755, true);
+    	$authConfig = $this->getAuthConfig($segments);
+
+    	if (! is_dir($this->controllerPath.$authConfig['directory'])) {
+            $this->file->makeDirectory($this->controllerPath.$authConfig['directory'], 0755, true);
         }
 
         // 判断文件是否存在
-        if ($plain || !$this->file->exists($this->controllerPath.$directory.DIRECTORY_SEPARATOR.'HomeController.php')) {
+        if ($plain || !$this->file->exists($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.'HomeController.php')) {
 	        // HomeController
 	        $homeController = $this->compileControllerStub([
-	        		'namespace' => 'App\Http\Controllers\\'.implode('\\',$dir->all()),
-	        		'guards' => collect(array_keys($this->config->get('multi.auth.guards')))->first(),
+	        		'namespace' => $authConfig['namespace'],
+	        		'guards' => $authConfig['guards'],
 	        	],
 	        	$this->file->get(__DIR__.'/../../templates/controllers/HomeController.stub'));
-	        $this->file->put($this->controllerPath.$directory.DIRECTORY_SEPARATOR.'HomeController.php',$homeController);
+	        $this->file->put($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.'HomeController.php',$homeController);
         }
         /**
          * auth-controller生成
          */
-        if ($plain || !$this->file->exists($this->controllerPath.$directory.DIRECTORY_SEPARATOR.$controllerName.'.php')) {
-	        // HomeController
-	        $guards = collect(array_keys($this->config->get('multi.auth.guards')))->first();
-	        // 获取model
-	        $provider = $this->config->get('multi.auth.guards.'.$guards.'.provider');
-	        $model = class_basename($this->config->get('multi.auth.providers.'.$provider.'.model'));
-	        $namespace = 'App\Http\Controllers\\'.implode('\\',$dir->all());
+        if ($plain || !$this->file->exists($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.$controllerName.'.php')) {
 
 	        $authController = $this->compileControllerStub([
-	        		'namespace' => 'App\Http\Controllers\\'.implode('\\',$dir->all()),
+	        		'namespace' => $authConfig['namespace'],
 	        		'controller' => $controllerName,
-	        		'model' => $this->config->get('multi.auth.providers.'.$provider.'.model'),
-	        		'table' => strtolower(str_plural($model)),
-	        		'tableModel' => ucfirst($model),
+	        		'redirectTo' => $this->config->get('multi.auth.redirectTo'),
+	        		'guard' => $authConfig['guards'],
+	        		'loginView' => $this->config->get('multi.auth.loginView'),
+	        		'registerView' => $this->config->get('multi.auth.registerView'),
+	        		'model' => $this->config->get('multi.auth.providers.'.$authConfig['provider'].'.model'),
+	        		'table' => strtolower(str_plural($authConfig['model'])),
+	        		'tableModel' => ucfirst($authConfig['model']),
 	        	],
 	        	$this->file->get(__DIR__.'/../../templates/controllers/AuthController.stub'));
-	        $this->file->put($this->controllerPath.$directory.DIRECTORY_SEPARATOR.$controllerName.'.php',$authController);
+	        $this->file->put($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.$controllerName.'.php',$authController);
         }
         
     }
@@ -141,6 +138,23 @@ class AuthGenerator
 	    	$stub = str_replace('{{'.$key.'}}' ,$value, $stub);
     	}
     	return $stub;
+    }
+
+    protected function getAuthConfig($segments)
+    {
+    	$dir = collect($segments);
+    	$dir->pop();
+    	$directory = implode(DIRECTORY_SEPARATOR,$dir->all());
+    	$guards = collect(array_keys($this->config->get('multi.auth.guards')))->first();
+        $provider = $this->config->get('multi.auth.guards.'.$guards.'.provider');
+        $model = class_basename($this->config->get('multi.auth.providers.'.$provider.'.model'));
+        $namespace = 'App\Http\Controllers\\'.implode('\\',$dir->all());
+        return ['guards' => $guards,'provider' => $provider,'model' => $model,'namespace' => $namespace,'directory' =>$directory];
+    }
+
+    public function generatorMigration($plain)
+    {
+    	
     }
 
 

@@ -50,7 +50,7 @@ class MultiAuthCommands extends Command
     	$plain = $this->option('force');
     	$name = $this->argument('name');
 
-    	$this->generator->generatorController($this->getAuthNameSegments($name),$plain);
+        $this->generator->generatorController($this->getAuthNameSegments($name),$plain);
     	dd($this->getAuthNameSegments($name));
 
     	$this->generator->create($plain,$this);
@@ -61,7 +61,7 @@ class MultiAuthCommands extends Command
 
     protected function getAuthNameSegments($authname)
     {
-        if (count(explode('/', $authname)) > 2 ) {
+        if (count(explode('/', $authname)) > 1 ) {
             return array_map('studly_case', explode('/', $authname));
         }
 

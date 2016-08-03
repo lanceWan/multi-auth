@@ -28,7 +28,10 @@ class {{controller}} extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/admin';
+    protected $redirectTo = '{{redirectTo}}';
+    protected $guard = '{{guard}}';
+    protected $loginView = '{{loginView}}';
+    protected $registerView = '{{registerView}}';
 
     /**
      * Create a new authentication controller instance.
