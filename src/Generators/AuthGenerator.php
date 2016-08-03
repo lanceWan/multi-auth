@@ -108,7 +108,7 @@ class AuthGenerator
         /**
          * auth-controller生成
          */
-        if ($plain || !$this->file->exists($this->controllerPath.$directory.DIRECTORY_SEPARATOR.$controllerName.'Controller.php')) {
+        if ($plain || !$this->file->exists($this->controllerPath.$directory.DIRECTORY_SEPARATOR.$controllerName.'.php')) {
 	        // HomeController
 	        $guards = collect(array_keys($this->config->get('multi.auth.guards')))->first();
 	        // 获取model
@@ -118,13 +118,13 @@ class AuthGenerator
 
 	        $authController = $this->compileControllerStub([
 	        		'namespace' => 'App\Http\Controllers\\'.implode('\\',$dir->all()),
-	        		'controller' => $controllerName.'Controller',
+	        		'controller' => $controllerName,
 	        		'model' => $this->config->get('multi.auth.providers.'.$provider.'.model'),
 	        		'table' => strtolower(str_plural($model)),
 	        		'tableModel' => ucfirst($model),
 	        	],
 	        	$this->file->get(__DIR__.'/../../templates/controllers/AuthController.stub'));
-	        $this->file->put($this->controllerPath.$directory.DIRECTORY_SEPARATOR.$controllerName.'Controller.php',$authController);
+	        $this->file->put($this->controllerPath.$directory.DIRECTORY_SEPARATOR.$controllerName.'.php',$authController);
         }
         
     }
