@@ -1,0 +1,19 @@
+{
+    "name": "iwanli/multi-auth",
+    "description": "",
+    "authors": [
+        {
+            "name": "Iwanli",
+            "email": "709344897@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Iwanli\\MultiAuth\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
