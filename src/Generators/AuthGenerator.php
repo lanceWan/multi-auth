@@ -20,6 +20,7 @@ class AuthGenerator
 
 	public function __construct(Filesystem $file,Repository $config)
 	{
+		dd('123');
 		$this->file = $file;
 		$this->config = $config;
 
@@ -84,12 +85,61 @@ class AuthGenerator
         }
     }
 
-    public function generatorController($segments,$plain)
+    public function generators($segments,$plain)
     {
     	$controllerName = collect($segments)->last();
 
     	$authConfig = $this->getAuthConfig($segments);
 
+    	$this->generatorController($authConfig,$plain);
+
+        $this->generatorMigration($authConfig,$plain);
+        
+    }
+
+    /**
+     * 控制器
+     * @author 晚黎
+     * @date   2016-08-03T15:08:51+0800
+     * @return [type]                   [description]
+     */
+    protected function compileControllerStub(array $data,$stub)
+    {
+    	foreach ($data as $key => $value) {
+	    	$stub = str_replace('{{'.$key.'}}' ,$value, $stub);
+    	}
+    	return $stub;
+    }
+
+    /**
+     * 获取配置
+     * @author 晚黎
+     * @date   2016-08-04T17:52:27+0800
+     * @param  [type]                   $segments [description]
+     * @return [type]                             [description]
+     */
+    protected function getAuthConfig($segments)
+    {
+    	$dir = collect($segments);
+    	$dir->pop();
+    	$directory = implode(DIRECTORY_SEPARATOR,$dir->all());
+    	$guards = collect(array_keys($this->config->get('multi.auth.guards')))->first();
+        $provider = $this->config->get('multi.auth.guards.'.$guards.'.provider');
+        $model = class_basename($this->config->get('multi.auth.providers.'.$provider.'.model'));
+        $namespace = 'App\Http\Controllers\\'.implode('\\',$dir->all());
+        return ['guards' => $guards,'provider' => $provider,'model' => $model,'namespace' => $namespace,'directory' =>$directory];
+    }
+
+    /**
+     * 创建控制器
+     * @author 晚黎
+     * @date   2016-08-04T18:06:11+0800
+     * @param  [type]                   $authConfig [description]
+     * @param  [type]                   $plain      [description]
+     * @return [type]                               [description]
+     */
+    public function generatorController($authConfig,$controllerName,$plain)
+    {
     	if (! is_dir($this->controllerPath.$authConfig['directory'])) {
             $this->file->makeDirectory($this->controllerPath.$authConfig['directory'], 0755, true);
         }
@@ -116,45 +166,34 @@ class AuthGenerator
 	        		'guard' => $authConfig['guards'],
 	        		'loginView' => $this->config->get('multi.auth.loginView'),
 	        		'registerView' => $this->config->get('multi.auth.registerView'),
-	        		'model' => $this->config->get('multi.auth.providers.'.$authConfig['provider'].'.model'),
+	        		'model' => $authConfig['model'],
 	        		'table' => strtolower(str_plural($authConfig['model'])),
 	        		'tableModel' => ucfirst($authConfig['model']),
 	        	],
 	        	$this->file->get(__DIR__.'/../../templates/controllers/AuthController.stub'));
 	        $this->file->put($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.$controllerName.'.php',$authController);
         }
-        
     }
 
     /**
-     * 控制器
+     * 创建迁移文件
      * @author 晚黎
-     * @date   2016-08-03T15:08:51+0800
-     * @return [type]                   [description]
+     * @date   2016-08-04T17:52:15+0800
+     * @param  [type]                   $plain [description]
+     * @return [type]                          [description]
      */
-    protected function compileControllerStub(array $data,$stub)
+    protected function generatorMigration($config,$plain)
     {
-    	foreach ($data as $key => $value) {
-	    	$stub = str_replace('{{'.$key.'}}' ,$value, $stub);
-    	}
-    	return $stub;
-    }
+    	$migrationName = '2106_08_04_000000_create_'.strtolower(str_plural($authConfig['model'])).'_table.php';
+    	 if ($plain || !$this->file->exists(base_path('database/migrations/'.$migrationName)) {
 
-    protected function getAuthConfig($segments)
-    {
-    	$dir = collect($segments);
-    	$dir->pop();
-    	$directory = implode(DIRECTORY_SEPARATOR,$dir->all());
-    	$guards = collect(array_keys($this->config->get('multi.auth.guards')))->first();
-        $provider = $this->config->get('multi.auth.guards.'.$guards.'.provider');
-        $model = class_basename($this->config->get('multi.auth.providers.'.$provider.'.model'));
-        $namespace = 'App\Http\Controllers\\'.implode('\\',$dir->all());
-        return ['guards' => $guards,'provider' => $provider,'model' => $model,'namespace' => $namespace,'directory' =>$directory];
-    }
-
-    public function generatorMigration($plain)
-    {
-    	
+	        $authController = $this->compileControllerStub([
+	        		'migration' => ucfirst(str_plural($authConfig['model'])),
+	        		'table' => strtolower(str_plural($authConfig['model']))
+	        	],
+	        	$this->file->get(__DIR__.'/../../templates/controllers/AuthMigration.stub'));
+	        $this->file->put(base_path('database/migrations/'.$migrationName),$authController);
+        }
     }
 
 
