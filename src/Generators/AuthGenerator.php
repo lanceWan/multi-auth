@@ -2,14 +2,11 @@
 namespace Iwanli\MultiAuth\Generators;
 use Illuminate\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Console\AppNamespaceDetectorTrait;
 /**
 * 创建文件类
 */
 class AuthGenerator
 {
-	use AppNamespaceDetectorTrait;
-
 	protected $file;
 
 	protected $config;
@@ -20,7 +17,6 @@ class AuthGenerator
 
 	public function __construct(Filesystem $file,Repository $config)
 	{
-		dd('123');
 		$this->file = $file;
 		$this->config = $config;
 
@@ -91,9 +87,12 @@ class AuthGenerator
 
     	$authConfig = $this->getAuthConfig($segments);
 
-    	$this->generatorController($authConfig,$plain);
+
+    	$this->generatorController($authConfig,$controllerName,$plain);
 
         $this->generatorMigration($authConfig,$plain);
+
+    	$this->generatorModel($authConfig,$plain);
         
     }
 
@@ -184,15 +183,45 @@ class AuthGenerator
      */
     protected function generatorMigration($config,$plain)
     {
-    	$migrationName = '2106_08_04_000000_create_'.strtolower(str_plural($authConfig['model'])).'_table.php';
-    	 if ($plain || !$this->file->exists(base_path('database/migrations/'.$migrationName)) {
+    	$migrationName = '2106_08_04_000000_create_'.strtolower(str_plural($config['model'])).'_table.php';
+    	if ($plain || !$this->file->exists(base_path('database/migrations/'.$migrationName))) {
 
 	        $authController = $this->compileControllerStub([
-	        		'migration' => ucfirst(str_plural($authConfig['model'])),
-	        		'table' => strtolower(str_plural($authConfig['model']))
+	        		'migration' => ucfirst(str_plural($config['model'])),
+	        		'table' => strtolower(str_plural($config['model']))
 	        	],
-	        	$this->file->get(__DIR__.'/../../templates/controllers/AuthMigration.stub'));
+	        	$this->file->get(__DIR__.'/../../templates/migrations/AuthMigration.stub'));
 	        $this->file->put(base_path('database/migrations/'.$migrationName),$authController);
+        }
+    }
+
+    /**
+     * 创建model
+     * @author 晚黎
+     * @date   2016-08-04
+     * @param  [type]     $plain  [description]
+     * @return [type]             [description]
+     */
+    protected function generatorModel($config,$plain)
+    {
+    	$model_path = $this->config->get('multi.auth.providers.'.$config['provider'].'.model');
+    	// 判断model是否需要创建目录
+    	$dir = collect(explode('\\', str_replace('App\\', '', $model_path)));
+    	$dir->pop();
+    	$directory = $dir ? implode(DIRECTORY_SEPARATOR,$dir->all()):'';
+
+    	if ($directory && !is_dir(app_path($directory))) {
+            $this->file->makeDirectory(app_path($directory), 0755, true);
+        }
+
+    	if ($plain || !$this->file->exists(lcfirst($model_path).'.php')) {
+
+	        $authModel = $this->compileControllerStub([
+	        		'namespace' => $directory ? 'App\\'.$directory:'App',
+	        		'model' => ucfirst(str_plural($config['model']))
+	        	],
+	        	$this->file->get(__DIR__.'/../../templates/models/AuthModel.stub'));
+	        $this->file->put(lcfirst($model_path).'.php',$authModel);
         }
     }
 

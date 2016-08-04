@@ -46,14 +46,14 @@ class MultiAuthCommands extends Command
      */
     public function handle()
     {
-        $plain = $this->option('force');
-        $name = $this->argument('name');
+    	$plain = $this->option('force');
+    	$name = $this->argument('name');
+
+        dd($this->getAuthNameSegments($name));
+
+        $this->generator->create($plain,$this);
 
         $this->generator->generators($this->getAuthNameSegments($name),$plain);
-    	dd($this->getAuthNameSegments($name));
-
-    	$this->generator->create($plain,$this);
-
 
     	$this->comment('Authentication scaffolding generated successfully!');
     }
