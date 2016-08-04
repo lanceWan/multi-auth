@@ -19,7 +19,9 @@ class MultiAuthServiceProvider extends ServiceProvider
 	 */
 	public function boot()
 	{
-		
+		$this->publishes([
+	        __DIR__.'/config/multi.php' => config_path('multi.php'),
+	    ],'multiatuh');
 	}
 
 	/**
@@ -37,6 +39,9 @@ class MultiAuthServiceProvider extends ServiceProvider
 		$this->app->singleton('multi_auth', function ($app) {
             return new MultiAuthCommands($app['iwanli.generator']);
         });
+
+        $this->setAuthConfig();
+
 		$this->commands([
 			'multi_auth'
 		]);
@@ -51,5 +56,18 @@ class MultiAuthServiceProvider extends ServiceProvider
 	{
 		return [];
 	}
+
+	public function setAuthConfig()
+    {
+    	if ($this->app['config']->get('multi')) {
+    		
+	    	// guards配置合并
+	    	$this->app['config']->set('auth.guards',array_merge($this->app['config']->get('multi.auth.guards'),$this->app['config']->get('auth.guards')));
+
+	    	// provider配置合并
+	    	$this->app['config']->set('auth.providers',array_merge($this->app['config']->get('multi.auth.providers'),$this->app['config']->get('auth.providers')));
+    	}
+
+    }
 
 }
