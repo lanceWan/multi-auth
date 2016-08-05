@@ -217,7 +217,7 @@ class AuthGenerator
 
             $authModel = $this->compileControllerStub([
                     'namespace' => $directory ? 'App\\'.$directory:'App',
-                    'model' => ucfirst(str_plural($config['model']))
+                    'model' => ucfirst($config['model'])
                 ],
                 $this->file->get(__DIR__.'/../../templates/models/AuthModel.stub'));
             $this->file->put(lcfirst($model_path).'.php',$authModel);

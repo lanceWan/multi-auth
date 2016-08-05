@@ -3,8 +3,8 @@ return [
 	'directory' =>[
 		'layouts' 	=> 'resources/views/layouts',
 		'auth' 		=> [
-			'passwords' => 'resources/views/mulit-auth/passwords',
-			'emails' 	=> 'resources/views/mulit-auth/emails'
+			'passwords' => 'resources/views/multi-auth/passwords',
+			'emails' 	=> 'resources/views/multi-auth/emails'
 		]
 	],
 	'views' => [
@@ -37,7 +37,7 @@ return [
                 'table' => 'password_resets',
                 'expire' => 60,
             ],
-        ]
+        ],
 	    'redirectTo' => '/admin',
 	    'loginView' => 'mulit-auth.login',
 	    'registerView' => 'multi-auth.register',
