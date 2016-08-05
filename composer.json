@@ -1,12 +1,15 @@
 {
     "name": "iwanli/multi-auth",
-    "description": "",
+    "description": "create multi-auth for laravel5.2",
+    "keywords": ["laravel5","multi-auth","l5"],
+    "license": "MIT",
     "authors": [
         {
             "name": "Iwanli",
             "email": "709344897@qq.com"
         }
     ],
+
     "require": {
         "php": ">=5.5.9"
     },

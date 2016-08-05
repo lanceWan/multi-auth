@@ -3,16 +3,16 @@ return [
 	'directory' =>[
 		'layouts' 	=> 'resources/views/layouts',
 		'auth' 		=> [
-			'passwords' => 'resources/views/multi-auth/passwords',
-			'emails' 	=> 'resources/views/multi-auth/emails'
+			'passwords' => 'resources/views/multiAuth/passwords',
+			'emails' 	=> 'resources/views/multiAuth/emails'
 		]
 	],
 	'views' => [
-        'login' 	=> 'multi-auth/login.blade.php',
-        'register' 	=> 'multi-auth/register.blade.php',
-        'email' 	=> 'multi-auth/passwords/email.blade.php',
-        'reset' 	=> 'multi-auth/passwords/reset.blade.php',
-        'password' 	=> 'multi-auth/emails/password.blade.php',
+        'login' 	=> 'multiAuth/login.blade.php',
+        'register' 	=> 'multiAuth/register.blade.php',
+        'email' 	=> 'multiAuth/passwords/email.blade.php',
+        'reset' 	=> 'multiAuth/passwords/reset.blade.php',
+        'password' 	=> 'multiAuth/emails/password.blade.php',
         'app' 		=> 'layouts/app.blade.php',
         'home' 		=> 'home.blade.php',
         'welcome' 	=> 'welcome.blade.php',
@@ -39,7 +39,7 @@ return [
             ],
         ],
 	    'redirectTo' => '/admin',
-	    'loginView' => 'mulit-auth.login',
-	    'registerView' => 'multi-auth.register',
+	    'loginView' => 'multiAuth.login',
+	    'registerView' => 'multiAuth.register',
     ]
 ];

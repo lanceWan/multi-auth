@@ -164,7 +164,7 @@ class AuthGenerator
                     'guard' => $authConfig['guards'],
                     'loginView' => $this->config->get('multi.auth.loginView'),
                     'registerView' => $this->config->get('multi.auth.registerView'),
-                    'model' => $authConfig['model'],
+                    'model' => $this->config->get('multi.auth.providers.'.$authConfig['provider'].'.model'),
                     'table' => strtolower(str_plural($authConfig['model'])),
                     'tableModel' => ucfirst($authConfig['model']),
                 ],
