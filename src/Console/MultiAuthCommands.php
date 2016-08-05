@@ -60,6 +60,10 @@ class MultiAuthCommands extends Command
 
         $this->generator->generators($this->getAuthNameSegments($name),$plain);
 
+        $this->generator->appendRoutes($this->getAuthNameSegments($name));
+
+        $this->generator->updateMiddleware();
+
         $this->comment('Authentication scaffolding generated successfully!');
     }
 

@@ -143,14 +143,14 @@ class AuthGenerator
         }
 
         // 判断文件是否存在
-        if ($plain || !$this->file->exists($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.'HomeController.php')) {
+        if ($plain || !$this->file->exists($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.'IndexController.php')) {
             // HomeController
             $homeController = $this->compileControllerStub([
                     'namespace' => $authConfig['namespace'],
                     'guards' => $authConfig['guards'],
                 ],
                 $this->file->get(__DIR__.'/../../templates/controllers/HomeController.stub'));
-            $this->file->put($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.'HomeController.php',$homeController);
+            $this->file->put($this->controllerPath.$authConfig['directory'].DIRECTORY_SEPARATOR.'IndexController.php',$homeController);
         }
         /**
          * auth-controller生成
@@ -223,6 +223,38 @@ class AuthGenerator
             $this->file->put(lcfirst($model_path).'.php',$authModel);
         }
     }
+    /**
+     * 添加路由
+     * @author 晚黎
+     * @date   2016-08-05T16:29:25+0800
+     * @return [type]                   [description]
+     */
+    public function appendRoutes($segments)
+    {
+        $controller = implode('\\',$segments);
 
+        $collect = collect($segments);
+        $collect->pop();
+
+        $indexController = $collect ? implode('\\',$collect->all()).'\IndexController':'IndexController';
+
+        $routes = $this->compileControllerStub([
+            'controller' => $controller,
+            'home' => $indexController,
+            ],
+            $this->file->get(__DIR__.'/../../templates/routes.stub'));
+        $this->file->append(app_path('Http/routes.php'),$routes);
+    }
+
+    /**
+     * 修改中间件
+     * @author 晚黎
+     * @date   2016-08-05T17:33:11+0800
+     * @return [type]                   [description]
+     */
+    public function updateMiddleware()
+    {
+        $this->file->put(app_path('Http/Middleware/Authenticate.php'),$this->file->get(__DIR__.'/../../templates/middleware/Authenticate.stub'));
+    }
 
 }

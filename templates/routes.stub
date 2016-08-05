@@ -1,4 +1,7 @@
 
-Route::auth();
-
-Route::get('/home', 'HomeController@index');
+Route::get('admin/login', '{{controller}}@getLogin');
+Route::post('admin/login', '{{controller}}@postLogin');
+Route::get('admin/register', '{{controller}}@getRegister');
+Route::post('admin/register', '{{controller}}@postRegister');
+Route::get('admin/logout', '{{controller}}@logout');
+Route::get('admin', '{{home}}@index');
