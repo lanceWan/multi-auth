@@ -1,5 +1,6 @@
 # multi-auth
 > Custom your Auth Drivers
+
 # Installation
 ```
 composer require iwanli/multi-auth
